@@ -8,8 +8,6 @@ const merge = require('webpack-merge');
 const path = require('path');
 const webpack = require('webpack');
 
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-
 // Configure the webpack-dev-server
 const configureDevServer = () => {
     return {
@@ -35,69 +33,17 @@ const configureDevServer = () => {
     };
 };
 
-// Configure Image loader
-const configureImageLoader = () => {
-    return {
-        test: /\.(png|jpe?g|gif|svg|webp)$/i,
-        exclude: ['/fonts/', '/svg/'],
-        use: [
-            {
-                loader: 'file-loader',
-                options: {
-                    name: '[path][name].[hash].[ext]',
-                },
-            },
-        ],
-    };
-};
-
-// Configure the Postcss loader
-const configurePostcssLoader = () => {
-    return {
-        test: /\.(css|less)$/,
-        use: [
-            {
-                loader: MiniCssExtractPlugin.loader,
-            },
-            {
-                loader: 'css-loader',
-                options: {
-                    url: false,
-                    importLoaders: 1,
-                    sourceMap: true,
-                },
-            },
-            {
-                loader: 'resolve-url-loader',
-            },
-            {
-                loader: 'postcss-loader',
-                options: {
-                    sourceMap: true,
-                },
-            },
-            'less-loader',
-        ],
-    };
-};
-
 module.exports = (env, argv) => {
     const mode = argv.mode;
 
-    return merge([
-        common(mode).configModern,
-        {
-            output: {
-                filename: 'js/[name].js',
-                hotUpdateChunkFilename: 'hot/hot-update.js',
-                hotUpdateMainFilename: 'hot/hot-update.json',
-            },
-            devtool: 'inline-source-map',
-            devServer: configureDevServer(),
-            module: {
-                rules: [configurePostcssLoader(), configureImageLoader()],
-            },
-            plugins: [new webpack.HotModuleReplacementPlugin()],
+    return merge(common(mode).configModern, {
+        output: {
+            filename: 'js/[name].js',
+            hotUpdateChunkFilename: 'hot/hot-update.js',
+            hotUpdateMainFilename: 'hot/hot-update.json',
         },
-    ]);
+        devtool: 'inline-source-map',
+        devServer: configureDevServer(),
+        plugins: [new webpack.HotModuleReplacementPlugin()],
+    });
 };

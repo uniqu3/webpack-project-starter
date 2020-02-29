@@ -29,6 +29,7 @@ module.exports = {
             path: path.resolve(PATH_PUBLIC + PATH_DIST),
             publicPath: PATH_DIST,
             dist: PATH_DIST,
+            clean: '**/*',
         },
         templates: './templates/',
     },
@@ -37,7 +38,8 @@ module.exports = {
         live: URL_LIVE,
     },
     entries: {
-        app: ['./js/app.js', './css/app.less'],
+        vendor: ['./js/vendor.js'],
+        app: ['./js/app.js', './less/app.less'],
     },
     devServerConfig: {
         public: DEVSERVER_PUBLIC,
@@ -47,9 +49,6 @@ module.exports = {
         https: DEVSERVER_HTTPS,
         proxy: { '*': DEVSERVER_PUBLIC },
         contentBase: path.resolve(PATH_PUBLIC + 'site/templates/'),
-    },
-    manifestConfig: {
-        basePath: '',
     },
     babelLoaderConfig: {
         exclude: [/(node_modules|bower_components)/],
@@ -61,4 +60,16 @@ module.exports = {
             ignore: ['.*', '**/js/**', '**/scss/**', '**/less/**'],
         },
     ],
+    manifestConfig: {
+        basePath: '',
+    },
+    purgeCssConfig: {
+        paths: [
+            './templates/**/*.{twig,html,tpl,php}',
+            './public/site/templates/**/*.{twig,html,tpl,php}',
+        ],
+        whitelist: [],
+        whitelistPatterns: [],
+        extensions: ['html', 'js', 'twig', 'tpl', 'php'],
+    },
 };

@@ -24,7 +24,6 @@ const configureBabelLoader = browserList => {
         use: {
             loader: 'babel-loader',
             options: {
-                cacheDirectory: true,
                 presets: [
                     [
                         '@babel/preset-env',
@@ -38,6 +37,7 @@ const configureBabelLoader = browserList => {
                             targets: {
                                 browsers: browserList,
                             },
+                            debug: true,
                         },
                     ],
                 ],
@@ -61,6 +61,67 @@ const configureFontLoader = () => {
                 loader: 'file-loader',
                 options: {
                     name: 'fonts/[name].[ext]',
+                },
+            },
+        ],
+    };
+};
+
+// Configure Image loader
+const configureImageLoader = () => {
+    return {
+        test: /\.(png|jpe?g|gif|svg|webp)$/i,
+        exclude: ['/fonts/', '/svg/'],
+        use: [
+            {
+                loader: 'file-loader',
+                options: {
+                    name: '[path][name].[hash].[ext]',
+                },
+            },
+        ],
+    };
+};
+
+const configurePostcssLoader = () => {
+    return {
+        test: /\.(css|less)$/,
+        use: [
+            {
+                loader: MiniCssExtractPlugin.loader,
+            },
+            {
+                loader: 'css-loader',
+                options: {
+                    url: false,
+                    importLoaders: 1,
+                    sourceMap: true,
+                },
+            },
+            {
+                loader: 'resolve-url-loader',
+            },
+            {
+                loader: 'postcss-loader',
+                options: {
+                    sourceMap: true,
+                },
+            },
+            'less-loader',
+        ],
+    };
+};
+
+// Configure Video Loader
+const configureVideoLoader = () => {
+    return {
+        test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
+        exclude: ['/images/', '/svg/'],
+        use: [
+            {
+                loader: 'file-loader',
+                options: {
+                    name: 'media/[name].[ext]',
                 },
             },
         ],
@@ -101,17 +162,22 @@ const configBase = mode => {
             ],
         },
         module: {
-            rules: [configureFontLoader()],
+            rules: [
+                configureFontLoader(),
+                configureImageLoader(),
+                configureVideoLoader(),
+                configurePostcssLoader(),
+            ],
         },
         plugins: [
-            new MiniCssExtractPlugin({
-                filename: 'css/[name].css',
-            }),
             new CopyWebpackPlugin(settings.copyWebpackConfig),
             new webpack.DefinePlugin({
                 __DEV__: mode !== 'production',
                 __PROD__: mode === 'production',
                 __VERSION__: JSON.stringify(package.version),
+            }),
+            new MiniCssExtractPlugin({
+                filename: 'css/[name].css',
             }),
         ],
     };
